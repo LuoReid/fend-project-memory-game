@@ -1,7 +1,16 @@
 /*
  * Create a list that holds all of your cards
  */
-
+var cards = [
+  "fa-diamond", "fa-diamond",
+  "fa-paper-plane-o", "fa-paper-plane-o",
+  "fa-anchor", "fa-anchor",
+  "fa-bolt", "fa-bolt",
+  "fa-cube", "fa-cube",
+  "fa-leaf", "fa-leaf",
+  "fa-bicycle", "fa-bicycle",
+  "fa-bomb", "fa-bomb"
+];
 
 /*
  * Display the cards on the page
@@ -9,20 +18,31 @@
  *   - loop through each card and create its HTML
  *   - add each card's HTML to the page
  */
+function displayCards() {
+  cards = shuffle(cards);
+  $("ul.deck").empty();
+  cards.forEach(function(e) {
+    var card = `<li class="card">
+        <i class="fa ${e}"></i>
+      </li>`;
+    $("ul.deck").append(card);
+  });
+}
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
+  var currentIndex = array.length,
+    temporaryValue, randomIndex;
 
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
 
-    return array;
+  return array;
 }
 
 
@@ -36,3 +56,37 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+
+function bindCard() {
+  $("li.card").click(function() {
+    $(this).addClass("open show");
+    var open = $("li.open.show");
+    if (open.length > 1) {
+      var class1 = $(open[0]).find("i").attr("class");
+      console.log(class1);
+      console.log($(open[1]).find("i").attr("class"));
+      if ($(open[1]).find("i").attr("class") === class1) {
+        $("li.open.show").addClass("match").removeClass("open show");
+      } else {
+        window.setTimeout(function() {
+          $("li.open.show").removeClass("open show");
+        }, 1000);
+      }
+    }
+  });
+}
+
+function closeCard() {
+
+}
+$(function() {
+  displayCards();
+  bindCard();
+
+  $(".restart").click(function() {
+    displayCards();
+    bindCard();
+  });
+  //test
+  //$("li.card").addClass("open").addClass("show");
+});
