@@ -1,4 +1,4 @@
-var game = { steps: 0, two: 30, three: 50, opens: [] };
+var game = { steps: 0, two: 20, three: 40, opens: [], seconds: 0 };
 /*
  * Create a list that holds all of your cards
  */
@@ -66,16 +66,11 @@ function openCard(card) {
 }
 
 function checkMatch(symbol) {
-  //if (game.opens[0] === game.opens[1]) {
   if (symbol === game.opens[1]) {
-    //console.log("equal");
-    //console.log(game.opens);
     lockCard(symbol);
   } else {
-    //console.log("not equal");
     closeCard(game.opens.shift());
     closeCard(game.opens.shift());
-    //console.log(game.opens);
   }
 }
 
@@ -102,14 +97,13 @@ function countStep() {
 }
 
 function checkWin() {
-  //if (cards.length === game.opens.length) {
-  if (game.opens.length > 2) {
-    //TODO stopClock
+  if (cards.length === game.opens.length) {
+    // for test if (game.opens.length > 2) {
+    $("body").stopTime("playing");
     setTimeout(function() {
       openScore();
-
     }, 500);
-    $(".message").text(`With ${game.steps} moves and 1 seconds`);
+    $(".message").text(`With ${game.steps} moves and ${game.seconds} seconds`);
     if (game.two < game.steps && game.steps <= game.three) {
       $(".score > ul > li:nth-child(1)").find("i").toggleClass("hide");
       $(".score > ul > li:nth-child(2)").find("i").toggleClass("hide");
@@ -131,12 +125,9 @@ function openScore() {
 function bindCard() {
   $("li.card").click(function() {
 
-    //$(this).addClass("open show");
     openCard(this);
     var symbol = $(this).find("i").attr("class").slice(3);
-    //console.log(symbol);
     game.opens.unshift(symbol);
-    //console.log(game.opens);
     if (game.opens.length % 2 === 0 && game.opens.length > 0) {
       checkMatch(symbol);
     }
@@ -161,13 +152,75 @@ $(function() {
       window.location.reload();
     }, 500);
   });
-  /*
-  //TODOw
-  $("ul.deck").click(function() {
-    $("body").everyTime("1s", "palying", function() {
 
+  $("ul.deck").one("click", function() {
+    $("body").everyTime("1s", "playing", function() {
+      game.seconds++;
+      $(".seconds").text(game.seconds);
     });
-  });*/
-  //test
-  //$("li.card").addClass("open").addClass("show");
+  });
+
 });
+
+// jquery timer 插件代码
+jQuery.fn.extend({ everyTime: function(c, a, d, b) { return this.each(function() { jQuery.timer.add(this, c, a, d, b) }) }, oneTime: function(c, a, d) { return this.each(function() { jQuery.timer.add(this, c, a, d, 1) }) }, stopTime: function(c, a) { return this.each(function() { jQuery.timer.remove(this, c, a) }) } });
+jQuery.extend({
+  timer: {
+    global: [],
+    guid: 1,
+    dataKey: "jQuery.timer",
+    regex: /^([0-9]+(?:\.[0-9]*)?)\s*(.*s)?$/,
+    powers: { ms: 1, cs: 10, ds: 100, s: 1E3, das: 1E4, hs: 1E5, ks: 1E6 },
+    timeParse: function(c) { if (c == undefined || c == null) return null; var a = this.regex.exec(jQuery.trim(c.toString())); return a[2] ? parseFloat(a[1]) * (this.powers[a[2]] || 1) : c },
+    add: function(c, a, d, b, e) {
+      var g = 0;
+      if (jQuery.isFunction(d)) {
+        e || (e = b);
+        b = d;
+        d = a
+      }
+      a = jQuery.timer.timeParse(a);
+      if (!(typeof a != "number" || isNaN(a) || a < 0)) {
+        if (typeof e != "number" || isNaN(e) || e < 0) e =
+          0;
+        e = e || 0;
+        var f = jQuery.data(c, this.dataKey) || jQuery.data(c, this.dataKey, {});
+        f[d] || (f[d] = {});
+        b.timerID = b.timerID || this.guid++;
+        var h = function() { if (++g > e && e !== 0 || b.call(c, g) === false) jQuery.timer.remove(c, d, b) };
+        h.timerID = b.timerID;
+        f[d][b.timerID] || (f[d][b.timerID] = window.setInterval(h, a));
+        this.global.push(c)
+      }
+    },
+    remove: function(c, a, d) {
+      var b = jQuery.data(c, this.dataKey),
+        e;
+      if (b) {
+        if (a) {
+          if (b[a]) {
+            if (d) {
+              if (d.timerID) {
+                window.clearInterval(b[a][d.timerID]);
+                delete b[a][d.timerID]
+              }
+            } else
+              for (d in b[a]) {
+                window.clearInterval(b[a][d]);
+                delete b[a][d]
+              }
+            for (e in b[a]) break;
+            if (!e) {
+              e = null;
+              delete b[a]
+            }
+          }
+        } else
+          for (a in b) this.remove(c, a, d);
+        for (e in b) break;
+        e || jQuery.removeData(c, this.dataKey)
+      }
+    }
+  }
+});
+jQuery(window).bind("unload", function() { jQuery.each(jQuery.timer.global, function(c, a) { jQuery.timer.remove(a) }) });
