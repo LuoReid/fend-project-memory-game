@@ -1,3 +1,4 @@
+var game = { steps: 0, two: 20, three: 40, opens: [] };
 /*
  * Create a list that holds all of your cards
  */
@@ -19,6 +20,10 @@ var cards = [
  *   - add each card's HTML to the page
  */
 function displayCards() {
+  /*game.steps = 0;
+$("span.moves").text(game.steps);
+$("ul.stars li i").removeClass("fa-star-o").addClass("fa-star");*/
+
   cards = shuffle(cards);
   $("ul.deck").empty();
   cards.forEach(function(e) {
@@ -56,14 +61,71 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+function openCard(card) {
+  $(card).addClass("open show");
+}
+
+function checkMatch(symbol) {
+  //if (game.opens[0] === game.opens[1]) {
+  if (symbol === game.opens[1]) {
+    console.log("equal");
+    console.log(game.opens);
+    lockCard(symbol);
+  } else {
+    console.log("not equal");
+    closeCard(game.opens.shift());
+    closeCard(game.opens.shift());
+    console.log(game.opens);
+  }
+}
+
+function lockCard(symbol) {
+  $("i." + symbol).parent().addClass("match").removeClass("open show");
+}
+
+function closeCard(symbol) {
+  window.setTimeout(function() {
+    $("i." + symbol).parent().removeClass("open show");
+  }, 500);
+}
+
+function countStep() {
+  game.steps++;
+  $("span.moves").text(game.steps);
+  if (game.steps > game.two && game.steps <= game.three) {
+    $("ul.stars li:nth-child(3)").find("i").removeClass("fa-star").addClass("fa-star-o");
+  } else if (game.steps > game.three) {
+    $("ul.stars li:nth-child(2)").find("i").removeClass("fa-star").addClass("fa-star-o");
+  } else {
+    $("ul.stars li i").removeClass("fa-star-o").addClass("fa-star");
+  }
+}
+
+function checkWin() {
+  if (cards.length === game.opens.length) {
+
+  }
+}
 
 function bindCard() {
   $("li.card").click(function() {
-    $(this).addClass("open show");
-    var open = $("li.open.show");
-    if (open.length > 1) {
-      var class1 = $(open[0]).find("i").attr("class");
-      console.log(class1);
+
+    //$(this).addClass("open show");
+    openCard(this);
+    var symbol = $(this).find("i").attr("class").slice(3);
+    console.log(symbol);
+    game.opens.unshift(symbol);
+    console.log(game.opens);
+    if (game.opens.length % 2 === 0 && game.opens.length > 0) {
+      checkMatch(symbol);
+    }
+
+    countStep();
+
+    /*    var open = $("li.open.show");
+          if (open.length > 1) {
+            var class1 = $(open[0]).find("i").attr("class");
+            console.log(class1);
       console.log($(open[1]).find("i").attr("class"));
       if ($(open[1]).find("i").attr("class") === class1) {
         $("li.open.show").addClass("match").removeClass("open show");
@@ -72,21 +134,26 @@ function bindCard() {
           $("li.open.show").removeClass("open show");
         }, 1000);
       }
-    }
+    }*/
+
   });
 }
 
-function closeCard() {
-
-}
 $(function() {
   displayCards();
   bindCard();
 
   $(".restart").click(function() {
-    displayCards();
-    bindCard();
+    window.location.reload();
   });
+
+  /*
+  //TODOw
+  $("ul.deck").click(function() {
+    $("body").everyTime("1s", "palying", function() {
+
+    });
+  });*/
   //test
   //$("li.card").addClass("open").addClass("show");
 });
