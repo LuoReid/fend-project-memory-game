@@ -1,4 +1,4 @@
-var game = { steps: 0, two: 20, three: 40, opens: [] };
+var game = { steps: 0, two: 30, three: 50, opens: [] };
 /*
  * Create a list that holds all of your cards
  */
@@ -68,14 +68,14 @@ function openCard(card) {
 function checkMatch(symbol) {
   //if (game.opens[0] === game.opens[1]) {
   if (symbol === game.opens[1]) {
-    console.log("equal");
-    console.log(game.opens);
+    //console.log("equal");
+    //console.log(game.opens);
     lockCard(symbol);
   } else {
-    console.log("not equal");
+    //console.log("not equal");
     closeCard(game.opens.shift());
     closeCard(game.opens.shift());
-    console.log(game.opens);
+    //console.log(game.opens);
   }
 }
 
@@ -102,9 +102,30 @@ function countStep() {
 }
 
 function checkWin() {
-  if (cards.length === game.opens.length) {
+  //if (cards.length === game.opens.length) {
+  if (game.opens.length > 2) {
+    //TODO stopClock
+    setTimeout(function() {
+      openScore();
 
+    }, 500);
+    $(".message").text(`With ${game.steps} moves and 1 seconds`);
+    if (game.two < game.steps && game.steps <= game.three) {
+      $(".score > ul > li:nth-child(1)").find("i").toggleClass("hide");
+      $(".score > ul > li:nth-child(2)").find("i").toggleClass("hide");
+    } else if (game.three < game.steps) {
+      $(".score > ul > li:nth-child(1)").find("i").toggleClass("hide");
+      //$(".score > ul > li:nth-child(2)").find("i").toggleClass("hide");
+    } else {
+      $(".fa.fa-star.fa-5x").toggleClass("hide");
+    }
   }
+}
+
+function openScore() {
+  $("body").toggleClass("modal-open");
+  $("body").append('<div class="modal-backdrop fade in"></div>');
+  $(".modal").css({ "display": "block" });
 }
 
 function bindCard() {
@@ -113,28 +134,16 @@ function bindCard() {
     //$(this).addClass("open show");
     openCard(this);
     var symbol = $(this).find("i").attr("class").slice(3);
-    console.log(symbol);
+    //console.log(symbol);
     game.opens.unshift(symbol);
-    console.log(game.opens);
+    //console.log(game.opens);
     if (game.opens.length % 2 === 0 && game.opens.length > 0) {
       checkMatch(symbol);
     }
 
     countStep();
 
-    /*    var open = $("li.open.show");
-          if (open.length > 1) {
-            var class1 = $(open[0]).find("i").attr("class");
-            console.log(class1);
-      console.log($(open[1]).find("i").attr("class"));
-      if ($(open[1]).find("i").attr("class") === class1) {
-        $("li.open.show").addClass("match").removeClass("open show");
-      } else {
-        window.setTimeout(function() {
-          $("li.open.show").removeClass("open show");
-        }, 1000);
-      }
-    }*/
+    checkWin();
 
   });
 }
@@ -147,6 +156,11 @@ $(function() {
     window.location.reload();
   });
 
+  $(".play-again").click(function() {
+    setTimeout(function() {
+      window.location.reload();
+    }, 500);
+  });
   /*
   //TODOw
   $("ul.deck").click(function() {
