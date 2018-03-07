@@ -1,8 +1,10 @@
-var game = { steps: 0, two: 20, three: 40, opens: [], seconds: 0 };
+//存储游戏状态
+let game = { steps: 0, two: 20, three: 40, opens: [], seconds: 0 };
 /*
  * Create a list that holds all of your cards
  */
-var cards = [
+//游戏的全部卡片
+let cards = [
   "fa-diamond", "fa-diamond",
   "fa-paper-plane-o", "fa-paper-plane-o",
   "fa-anchor", "fa-anchor",
@@ -18,6 +20,9 @@ var cards = [
  *   - shuffle the list of cards using the provided "shuffle" method below
  *   - loop through each card and create its HTML
  *   - add each card's HTML to the page
+ */
+/**
+ * @description 洗牌
  */
 function displayCards() {
   /*game.steps = 0;
@@ -61,10 +66,17 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+/**
+ * @description 打开卡片
+ * @param {object} card
+ */
 function openCard(card) {
   $(card).addClass("open show");
 }
-
+/**
+ * @description 检查已打开的卡片是否匹配
+ * @param {string} symbol卡片上的图标
+ */
 function checkMatch(symbol) {
   if (symbol === game.opens[1]) {
     lockCard(symbol);
@@ -74,16 +86,26 @@ function checkMatch(symbol) {
   }
 }
 
+/**
+ * @description 锁定卡片
+ * @param {string} symbol 卡片上的图标
+ */
 function lockCard(symbol) {
   $("i." + symbol).parent().addClass("match").removeClass("open show");
 }
-
+/**
+ * @description 关闭卡片
+ * @param {string} symbol 卡片上的图标
+ */
 function closeCard(symbol) {
   window.setTimeout(function() {
     $("i." + symbol).parent().removeClass("open show");
   }, 500);
 }
 
+/**
+ * @description 记步
+ */
 function countStep() {
   game.steps++;
   $("span.moves").text(game.steps);
@@ -96,6 +118,9 @@ function countStep() {
   }
 }
 
+/**
+ * @description 检查是否完成游戏
+ */
 function checkWin() {
   if (cards.length === game.opens.length) {
     // for test if (game.opens.length > 2) {
@@ -115,44 +140,52 @@ function checkWin() {
     }
   }
 }
-
+/**
+ * @description 打开得分板
+ */
 function openScore() {
   $("body").toggleClass("modal-open");
   $("body").append('<div class="modal-backdrop fade in"></div>');
   $(".modal").css({ "display": "block" });
 }
-
+/**
+ * @description 绑定翻开卡片的事件
+ */
 function bindCard() {
   $("li.card").click(function() {
-
-    openCard(this);
-    var symbol = $(this).find("i").attr("class").slice(3);
-    game.opens.unshift(symbol);
-    if (game.opens.length % 2 === 0 && game.opens.length > 0) {
-      checkMatch(symbol);
+    const isOpen = $(this).attr("class");
+    if (!isOpen.includes("match") && !isOpen.includes("open")) {
+      openCard(this);
+      const symbol = $(this).find("i").attr("class").slice(3);
+      game.opens.unshift(symbol);
+      if (game.opens.length % 2 === 0 && game.opens.length > 0) {
+        checkMatch(symbol);
+      }
+      countStep();
     }
-
-    countStep();
-
     checkWin();
-
   });
 }
 
 $(function() {
+  //洗牌
   displayCards();
+  //绑定翻开卡片事件
   bindCard();
 
+  //绑定重新开始事件
   $(".restart").click(function() {
     window.location.reload();
   });
 
+  //绑定再玩一局事件
   $(".play-again").click(function() {
     setTimeout(function() {
       window.location.reload();
     }, 500);
   });
 
+  //绑定计时器开始事件
   $("ul.deck").one("click", function() {
     $("body").everyTime("1s", "playing", function() {
       game.seconds++;
