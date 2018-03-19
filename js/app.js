@@ -78,6 +78,8 @@ function openCard(card) {
  * @param {string} symbol卡片上的图标
  */
 function checkMatch(symbol) {
+  game.steps++;
+  $("span.moves").text(game.steps);
   if (symbol === game.opens[1]) {
     lockCard(symbol);
   } else {
@@ -107,8 +109,6 @@ function closeCard(symbol) {
  * @description 记步
  */
 function countStep() {
-  game.steps++;
-  $("span.moves").text(game.steps);
   if (game.steps > game.two && game.steps <= game.three) {
     $("ul.stars li:nth-child(3)").find("i").removeClass("fa-star").addClass("fa-star-o");
   } else if (game.steps > game.three) {
